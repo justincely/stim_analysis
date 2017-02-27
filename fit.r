@@ -2,13 +2,12 @@ library(RMySQL)
 library(MASS)
 library(yaml)
 
+#-- Configuration file is necessary to connect to database server
 config_file <- file.path(Sys.getenv("HOME"), "configure.yaml")
 
 if (file.exists(config_file)) {
     settings <- yaml.load_file(config_file)
 }
-
-
 
 mydb = dbConnect(MySQL(), 
                 user=settings$user, 
@@ -56,7 +55,7 @@ for (segment in c("FUVA", "FUVB")) {
                                           stims.stim1_y != -999 AND
                                           stims.stim2_x != -999 AND
                                           stims.stim2_y != -999;", lampkey, segment)
-    print(query)
+ 
     rs <- dbSendQuery(mydb, query)
     data <- fetch(rs, n=-1)
 
@@ -66,7 +65,7 @@ for (segment in c("FUVA", "FUVB")) {
     pdf(sprintf('sample_plot_%s.pdf', segment), width=12, height=12)
     #png(sprintf('sample_plot_%s.png', segment), width=10, height=10)
     par(pin=c(11, 10))
-    p <- pairs(data, col=topo.colors(nrow(data))[rank(abs(data$temp))], upper.panel=panel.cor)
+    p <- pairs(data, col=topo.colors(nrow(data), alpha=.3)[rank(abs(data$temp))], upper.panel=panel.cor)
     print(p)
     dev.off()
 
